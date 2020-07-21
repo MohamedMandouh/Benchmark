@@ -5,22 +5,21 @@ import com.hazelcast.jet.pipeline.BatchStage;
 import com.hazelcast.jet.pipeline.JoinClause;
 import com.hazelcast.jet.pipeline.Sinks;
 
-import static org.example.LongSource.longStage;
+import static org.example.LongSourceP.longSource;
 import static org.example.Main.runJetBenchmark;
 
 public class InnerJoin {
 
-    private static final long NUM_KEYS = 50_000_000;
-    private static final long RANGE = 100_000_000;
+    private static final int NUM_KEYS = 50_000_000;
+    private static final long NUM_ITEMS = 100_000_000;
 
     public static void main(String[] args) {
         runJetBenchmark(p -> {
-            BatchStage<Long> left = longStage(p, "left", NUM_KEYS, RANGE);
-            BatchStage<Long> right = longStage(p, "right", NUM_KEYS);
-            left.innerHashJoin(right, JoinClause.onKeys(n -> n % NUM_KEYS, n -> n % NUM_KEYS),
-                    Tuple2::tuple2).filter(e -> (e.getKey() % 1_000_000 == 0))
+            BatchStage<Long> left = p.readFrom(longSource("left", NUM_KEYS, NUM_ITEMS));
+            BatchStage<Long> right = p.readFrom(longSource("right", NUM_KEYS, NUM_KEYS));
+            left.innerHashJoin(right, JoinClause.onKeys(k -> k, k -> k), Tuple2::tuple2)
+                .filter(e -> (e.getKey() % (NUM_KEYS / 20) == 0))
                 .writeTo(Sinks.logger());
-
         });
     }
 }
