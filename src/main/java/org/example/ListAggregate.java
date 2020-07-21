@@ -17,7 +17,7 @@ public class ListAggregate {
                  .rebalance()
                  .groupingKey(n -> n)
                  .aggregate(toList())
-                 .filter(x -> (x.getKey() % NUM_KEYS) == 1_000_000)
+                 .filter(x -> (x.getKey() % (NUM_KEYS / 20)) == 0)
                  .writeTo(Sinks.logger()));
     }
 }
