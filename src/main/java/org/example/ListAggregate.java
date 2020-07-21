@@ -9,11 +9,11 @@ import static org.example.Main.runJetBenchmark;
 public class ListAggregate {
 
     private static final int NUM_KEYS = 50_000_000;
-    private static final long RANGE = 100_000_000;
+    private static final long NUM_ITEMS = 2 * NUM_KEYS;
 
     public static void main(String[] args) {
         runJetBenchmark(p ->
-                p.readFrom(longSource("input", NUM_KEYS, RANGE))
+                p.readFrom(longSource("input", NUM_KEYS, NUM_ITEMS))
                  .rebalance()
                  .groupingKey(n -> n)
                  .aggregate(toList())
