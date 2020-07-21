@@ -22,7 +22,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.toList;
 
 public class LongSourceP extends AbstractProcessor {
-    private static final long HICCUP_REPORT_THRESHOLD_MILLIS = 10;
+    private static final long HICCUP_REPORT_THRESHOLD_MILLIS = 100;
 
     private final long keyCount;
     private final long totalCountToEmit;
@@ -61,7 +61,7 @@ public class LongSourceP extends AbstractProcessor {
     @Override
     public boolean complete() {
         nowNanos = System.nanoTime();
-//        detectAndReportHiccup();
+        detectAndReportHiccup();
         return emitEvents();
     }
 
