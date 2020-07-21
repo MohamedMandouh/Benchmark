@@ -22,7 +22,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.toList;
 
 public class LongSourceP extends AbstractProcessor {
-    private static final long HICCUP_REPORT_THRESHOLD_MILLIS = 100;
+    private static final long HICCUP_REPORT_THRESHOLD_MILLIS = 200;
 
     private final long keyCount;
     private final long totalCountToEmit;
@@ -35,7 +35,7 @@ public class LongSourceP extends AbstractProcessor {
     private long nowNanos;
     private long lastCallNanos;
     private long lastReport;
-    private long globalItemIndexAtLastReport;
+    private long emittedCountAtLastReport;
     private final AppendableTraverser<Long> traverser = new AppendableTraverser<>(1);
     private String name;
 
@@ -55,7 +55,7 @@ public class LongSourceP extends AbstractProcessor {
         name = context.vertexName();
         totalParallelism = context.totalParallelism();
         globalProcessorIndex = context.globalProcessorIndex();
-        lastReport = System.nanoTime();
+        lastCallNanos = lastReport = System.nanoTime();
     }
 
     @Override
@@ -108,14 +108,13 @@ public class LongSourceP extends AbstractProcessor {
     private void reportThroughput(String phaseName) {
         long nanosSinceLastReport = nowNanos - lastReport;
         lastReport = nowNanos;
-        long globalItemIndex = globalItemIndex();
-        long globalItemCountSinceLastReport = globalItemIndex - globalItemIndexAtLastReport;
-        globalItemIndexAtLastReport = globalItemIndex;
+        long emittedSinceLastReport = emittedCount - emittedCountAtLastReport;
+        emittedCountAtLastReport = emittedCount;
         System.out.printf("%s.%02d completed %s phase: %,.0f items/second%n",
                 name,
                 globalProcessorIndex,
                 phaseName,
-                globalItemCountSinceLastReport / ((double) nanosSinceLastReport / SECONDS.toNanos(1))
+                emittedSinceLastReport / ((double) nanosSinceLastReport / SECONDS.toNanos(1))
         );
     }
 
