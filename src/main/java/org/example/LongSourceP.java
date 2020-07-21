@@ -100,7 +100,7 @@ public class LongSourceP extends AbstractProcessor {
     private void detectAndReportHiccup() {
         long millisSinceLastCall = NANOSECONDS.toMillis(nowNanos - lastCallNanos);
         if (millisSinceLastCall > HICCUP_REPORT_THRESHOLD_MILLIS) {
-            System.out.printf("*** Source #%d hiccup: %,d ms%n", globalProcessorIndex, millisSinceLastCall);
+            System.out.printf("*** %s.%02d hiccup: %,d ms%n", name, globalProcessorIndex, millisSinceLastCall);
         }
         lastCallNanos = nowNanos;
     }
@@ -138,8 +138,8 @@ public class LongSourceP extends AbstractProcessor {
             createInitialItemArrays();
         }
 
-        @Override
-        public Function<? super Address, ? extends ProcessorSupplier> get(List<Address> addresses) {
+        @Nonnull @Override
+        public Function<? super Address, ? extends ProcessorSupplier> get(@Nonnull List<Address> addresses) {
             try {
                 int[][][] initialItemsLocal = initialItemArrays;
                 return memberAddr ->
@@ -203,7 +203,7 @@ public class LongSourceP extends AbstractProcessor {
             this.totalCount = totalCount;
         }
 
-        @Override
+        @Nonnull @Override
         public List<? extends Processor> get(int count) {
             Preconditions.checkTrue(count == initialItemArrays.length, String.format(
                     "This ProcessorSupplier was supposed to return %d processors, but asked to return %d",
