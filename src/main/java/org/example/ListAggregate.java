@@ -3,7 +3,7 @@ package org.example;
 import com.hazelcast.jet.pipeline.Sinks;
 
 import static com.hazelcast.jet.aggregate.AggregateOperations.toList;
-import static org.example.LongSourceP.longSource;
+import static org.example.LongSource.longSource;
 import static org.example.Main.runJetBenchmark;
 
 public class ListAggregate {

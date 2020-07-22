@@ -10,6 +10,7 @@ import com.hazelcast.jet.core.ProcessorSupplier;
 import com.hazelcast.jet.pipeline.BatchSource;
 import com.hazelcast.jet.pipeline.Sources;
 
+import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -46,7 +47,7 @@ public class LongSourceP extends AbstractProcessor {
     }
 
     @SuppressWarnings("SameParameterValue")
-    public static BatchSource<Long> longSource(String name, int keyCount, long totalCount) {
+    public static BatchSource<Long> longSourceDistributed(String name, int keyCount, long totalCount) {
         return Sources.batchFromProcessor(name, new MetaSupplier(keyCount, totalCount));
     }
 

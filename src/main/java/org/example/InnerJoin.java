@@ -5,12 +5,12 @@ import com.hazelcast.jet.pipeline.BatchStage;
 import com.hazelcast.jet.pipeline.JoinClause;
 import com.hazelcast.jet.pipeline.Sinks;
 
-import static org.example.LongSourceP.longSource;
+import static org.example.LongSource.longSource;
 import static org.example.Main.runJetBenchmark;
 
 public class InnerJoin {
 
-    private static final int NUM_KEYS = 1_000_000;
+    private static final int NUM_KEYS = 2_000_000;
     private static final long NUM_ITEMS = 2 * NUM_KEYS;
 
     public static void main(String[] args) {
