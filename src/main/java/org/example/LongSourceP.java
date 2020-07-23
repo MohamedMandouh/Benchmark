@@ -8,6 +8,8 @@ import com.hazelcast.jet.core.Processor;
 import com.hazelcast.jet.core.ProcessorMetaSupplier;
 import com.hazelcast.jet.core.ProcessorSupplier;
 import com.hazelcast.jet.pipeline.BatchSource;
+import com.hazelcast.jet.pipeline.BatchStage;
+import com.hazelcast.jet.pipeline.Pipeline;
 import com.hazelcast.jet.pipeline.Sources;
 
 import javax.annotation.Nonnull;
@@ -46,8 +48,17 @@ public class LongSourceP extends AbstractProcessor {
         this.initialItems = initialItems;
     }
 
+    static BatchStage<Long> longStageDistributed(Pipeline p, String sourceName, int keyCount, long totalCount) {
+        return p.readFrom(longSourceDistributed(sourceName, keyCount, totalCount));
+    }
+
+    static BatchStage<Long> longStageDistributed(Pipeline p, String sourceName, int count) {
+        return longStageDistributed(p, sourceName, (int) count, count);
+    }
+
     @SuppressWarnings("SameParameterValue")
-    public static BatchSource<Long> longSourceDistributed(String name, int keyCount, long totalCount) {
+    private static BatchSource<Long> longSourceDistributed(String name, int keyCount, long totalCount) {
+        Preconditions.checkTrue(keyCount <= totalCount, "countToEmit must be at least as much as keyCount");
         return Sources.batchFromProcessor(name, new MetaSupplier(keyCount, totalCount));
     }
 

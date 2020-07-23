@@ -37,8 +37,8 @@ public class LongSourceWithFlatmap {
         this.keysToEmit = shuffledKeys((int) keyCount);
     }
 
-    static BatchStage<Long> longStage(Pipeline p, String sourceName, long keyCount, long totalCount) {
-        return p.readFrom(longSource(sourceName, keyCount, totalCount))
+    static BatchStage<Long> longStageWithFlatmap(Pipeline p, String sourceName, int keyCount, long totalCount) {
+        return p.readFrom(longSourceWithFlatmap(sourceName, keyCount, totalCount))
                 .flatMap(n -> {
                     Long[] array = new Long[SOURCE_STEP];
                     Arrays.setAll(array, i -> n + i);
@@ -46,11 +46,12 @@ public class LongSourceWithFlatmap {
                 });
     }
 
-    static BatchStage<Long> longStage(Pipeline p, String sourceName, long count) {
-        return longStage(p, sourceName, count, count);
+    static BatchStage<Long> longStageWithFlatmap(Pipeline p, String sourceName, int count) {
+        return longStageWithFlatmap(p, sourceName, count, count);
     }
 
-    private static BatchSource<Long> longSource(String name, long keyCount, long totalCount) {
+    private static BatchSource<Long> longSourceWithFlatmap(String name, int keyCount, long totalCount) {
+        Preconditions.checkTrue(keyCount <= totalCount, "countToEmit must be at least as much as keyCount");
         return SourceBuilder
                 .batch(name, c -> new LongSourceWithFlatmap(c.vertexName(), keyCount, totalCount))
                 .fillBufferFn(LongSourceWithFlatmap::fillBuffer)

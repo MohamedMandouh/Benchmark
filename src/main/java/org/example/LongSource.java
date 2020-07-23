@@ -11,29 +11,35 @@ import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static com.hazelcast.jet.Traversers.traverseArray;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class LongSource {
     private final String name;
-    private final long countToEmit;
-    private final long keyCount;
+    private final int keyCount;
+    private final long totalCount;
 
     private int[] keysToEmit;
     private long emittedCount;
     private long timeMarkNanos;
     private long emittedCountMark;
 
-    LongSource(String name, long keyCount, long countToEmit) {
-        Preconditions.checkTrue(keyCount < Integer.MAX_VALUE, "Too many keys, maximum is " + Integer.MAX_VALUE);
-        Preconditions.checkTrue(keyCount <= countToEmit, "countToEmit must be at least as much as keyCount");
+    LongSource(String name, int keyCount, long totalCount) {
         this.name = name;
-        this.countToEmit = countToEmit;
         this.keyCount = keyCount;
-        this.keysToEmit = shuffledKeys((int) keyCount);
+        this.totalCount = totalCount;
+        this.keysToEmit = shuffledKeys(keyCount);
     }
 
-    static BatchSource<Long> longSource(String name, long keyCount, long totalCount) {
+    static BatchStage<Long> longStage(Pipeline p, String sourceName, int keyCount, long totalCount) {
+        return p.readFrom(longSource(sourceName, keyCount, totalCount));
+    }
+
+    static BatchStage<Long> longStage(Pipeline p, String sourceName, int count) {
+        return longStage(p, sourceName, count, count);
+    }
+
+    private static BatchSource<Long> longSource(String name, int keyCount, long totalCount) {
+        Preconditions.checkTrue(keyCount <= totalCount, "countToEmit must be at least as much as keyCount");
         return SourceBuilder
                 .batch(name, c -> new LongSource(c.vertexName(), keyCount, totalCount))
                 .fillBufferFn(LongSource::fillBuffer)
@@ -45,7 +51,7 @@ public class LongSource {
             timeMarkNanos = System.nanoTime();
         }
         Random rnd = ThreadLocalRandom.current();
-        for (int i = 0; i < 256 && emittedCount < countToEmit; i++, emittedCount++) {
+        for (int i = 0; i < 256 && emittedCount < totalCount; i++, emittedCount++) {
             if (emittedCount % 1_000_000 == 0) {
                 System.out.printf("%s emitted %,d%n", name, emittedCount);
             }
@@ -56,7 +62,7 @@ public class LongSource {
             long itemToEmit = keysToEmit != null ? keysToEmit[(int) emittedCount] : rnd.nextInt((int) keyCount);
             buf.add(itemToEmit);
         }
-        if (emittedCount == countToEmit) {
+        if (emittedCount == totalCount) {
             buf.close();
             reportThroughput(emittedCount == keyCount ? "distinct keys" : "random keys");
         }
