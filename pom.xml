@@ -20,6 +20,11 @@
             <version>4.3-SNAPSHOT</version>
         </dependency>
         <dependency>
+            <groupId>com.hazelcast.jet</groupId>
+            <artifactId>hazelcast-jet-rocksdb</artifactId>
+            <version>4.3-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>annotations</artifactId>
             <version>3.0.0</version>

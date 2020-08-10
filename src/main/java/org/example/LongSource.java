@@ -59,7 +59,7 @@ public class LongSource {
                 keysToEmit = null;
                 reportThroughput("distinct keys");
             }
-            long itemToEmit = keysToEmit != null ? keysToEmit[(int) emittedCount] : rnd.nextInt((int) keyCount);
+            long itemToEmit = keysToEmit != null ? keysToEmit[(int) emittedCount] : rnd.nextInt(keyCount);
             buf.add(itemToEmit);
         }
         if (emittedCount == totalCount) {
